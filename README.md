@@ -1,3 +1,7 @@
+# Status
+
+This project is currently under development.
+
 # Use Case
 
 An e-commerce website that displays the key insights for its business. 
