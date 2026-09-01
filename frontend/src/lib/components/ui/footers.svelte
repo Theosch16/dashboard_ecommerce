@@ -1,7 +1,9 @@
 <footer class="footers">
     <hr>
-    <h4>Théo SCHMITT - @2026</h4>
-    <p>Olist Kaggle Dataset</p>
+    <div class="line-footer">
+        <h4>Théo SCHMITT - @2026</h4>
+        <p>Olist Kaggle Dataset</p>
+    </div>
 </footer>
 
 <style>
@@ -10,18 +12,38 @@
     }
     .footers hr{
         border:none;
-        height:0.05em;
-        color: black;
-        background-color:black;
-        opacity:25%;
+        height:1px;
+        color: var(--color-text);
+        background-color:var(--color-background);
     }
-    .footers h4{
-        text-align:center;
-    }
+
     .footers p{
         text-align:center;
         font-weight:300;
-        opacity:55%;
+        opacity:0.55;
+    }
+    .line-footer{
+        padding: 1rem;
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        grid-template-areas:"credit source";
+        align-items:center;
+    }
+    .line-footer {
+        justify-content:center;
+        align-items:center;
+        grid-area:credit;
+    }
+    .line-footer > :first-child {
+        grid-area: credit;
+        margin: 0;
+        text-align: center;
+    }
+
+    .line-footer > :last-child {
+        grid-area: source;
+        margin: 0;
+        text-align: center;
     }
 </style>
 

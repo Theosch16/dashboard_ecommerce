@@ -8,12 +8,23 @@
 <head>
 	<title>Dashboard</title>
 </head>
+<div class="container">
+	<Headers />
 
-<Headers />
 
+	<main>
+		{@render children()}
+	</main>
 
-<main>
-	{@render children()}
-</main>
+	<Footers />
+</div>
 
-<Footers />
+<style>
+
+	.container{
+		display:grid;
+		grid-template-rows: auto 1fr auto;
+		min-height:100vh;
+	}
+
+</style>
