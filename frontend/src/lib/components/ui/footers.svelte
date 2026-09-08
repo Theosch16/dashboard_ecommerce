@@ -10,6 +10,7 @@
     .footers{
         width:100%;
     }
+    
     .footers hr{
         border:none;
         height:1px;

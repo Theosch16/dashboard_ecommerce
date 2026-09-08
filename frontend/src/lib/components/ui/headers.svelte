@@ -29,8 +29,8 @@
     }
 
     .header a{
-    text-decoration:none;
-    color:inherit;
+        text-decoration:none;
+        color:inherit;
     }
 
     .header h1{
