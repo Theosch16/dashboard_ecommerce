@@ -33,8 +33,23 @@ services:
       volumes:
         - ./backend:/app
       restart: unless-stopped
+      command: python manage.py runserver 0.0.0.0:8000
       networks:
         - dashboard_network
+
+    etl:
+      build:
+        context: ./backend
+        dockerfile: Dockerfile
+      container_name: etl
+      environment:
+        POSTGRES_DB: ${POSTGRE_DB}
+        POSTGRES_USER: ${POSTGRE_USER}
+        POSTGRES_PASSWORD: ${POSTGRE_PASSWORD}
+      networks:
+        - dashboard_network
+      volumes :
+        - .:/app
 
     frontend:
       build:
