@@ -40,5 +40,12 @@
 	},
 	"keywords": [
 		"svelte"
-	]
+	],
+	"dependencies": {
+		"layerchart": "^2.5.0",
+		"leaflet": "^1.9.4",
+		"leaflet.markercluster": "^1.5.3",
+		"svelte-ux": "^1.0.11",
+		"svelteplot": "^0.14.2"
+	}
 }

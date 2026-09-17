@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "layerchart": "^2.5.0",
+    "leaflet.markercluster": "^1.5.3"
+  }
+}

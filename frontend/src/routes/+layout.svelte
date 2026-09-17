@@ -6,6 +6,7 @@
 	let { children } = $props();
 </script>
 <head>
+
 	<title>Dashboard</title>
 </head>
 <div class="container">

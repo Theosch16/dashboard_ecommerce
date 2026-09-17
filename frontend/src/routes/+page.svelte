@@ -93,8 +93,6 @@
             width:fit-content;
             padding:1.0rem;
         }
-        
-
     }
 
 </style>

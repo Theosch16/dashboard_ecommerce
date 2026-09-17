@@ -13,9 +13,6 @@ def clean_order():
     df_order=pd.read_csv(RAW_DATA / "olist_orders_dataset.csv")
     df_order = df_order.drop(columns=['order_approved_at'])
 
-    # Remove all rows where a value is missing
-    df_order=df_order.dropna(subset=["order_delivered_carrier_date", "order_delivered_customer_date"])
-
     # Change types of columns
     columns_to_change=[
         'order_estimated_delivery_date',
