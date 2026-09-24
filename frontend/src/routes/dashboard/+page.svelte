@@ -1,135 +1,26 @@
 <script lang="ts">
+    import { onMount } from 'svelte';
+    import Map from '$lib/components/graph/leaflet.svelte';
+    import Payment from '$lib/components/graph/payment.svelte';
+    import City from '$lib/components/graph/city.svelte';
+    import Delivery from '$lib/components/graph/delivery.svelte';
+    import Category from '$lib/components/graph/category.svelte';
 
-    import { Plot, BarX, setPlotDefaults } from 'svelteplot';
-    import { PieChart, Arc, Text } from "layerchart";
-    import { onMount, onDestroy } from 'svelte';
-    import Map_example from '$lib/Leaflet.svelte';
+    import Filters from '$lib/components/filters/search.svelte';
 
-    //Variables
+	let selected = $state({
+        localisation_state: '',
+        localisation_city: '',
+        year: ''
+    });
 
-    let title_graph=$state("");
-
-    let city = $state<{
-        customer__localisation__city:string;
-        count:number;
-        }[]>([]);
-
-    let showCityPlot = $state(false);
-
-    let category = $state<{
-        product_category_name:string;
-        count:number;
-    }[]>([]);
-
-
-    let showCategoryPlot =$state(false);
-
-    let payment = $state<{
-        payment_type: string;
-        count: number;
-        percentage: string;
-    }[]>([]);
-
-    let showPaymentPlot =$state(false);
-
-    let delivery = $state<{
-        order_status: string;
-        count: number;
-        percentage: string;
-    }[]>([]);
-
-    let showDeliveryPlot =$state(false);
-
-    let showAnyPlot = $derived(showCategoryPlot || showDeliveryPlot || showPaymentPlot);
-
-    //Plots
-    
-    setPlotDefaults({
-        bar: {
-            borderRadius: 4,
-            stroke: 'currentColor',
-            fill: "#dd4c4c"
-        }
-    })
-
-    //Functions
-
-    async function get_city() {
-        const response = await fetch('/api/stats_order_city');
-        const data = await response.json();
-        city = Object.values(data);
-        showCityPlot = true;
+    function updateFilters(state,city,year){
+        selected = {
+            localisation_state:state,
+            localisation_city:city,
+            year:year
+        };
     }
-
-    async function get_category() {
-        const response = await fetch('/api/stats_categories');
-        const data = await response.json();
-        category = data.map(item => ({
-            ...item,
-            product_category_name:item.product_category_name
-                .replace(/_/g, ' ')
-                .toLowerCase()
-                .replace(/^./, char => char.toUpperCase())
-        }))
-        title_graph="Catégories";
-        showCategoryPlot = true;
-        showPaymentPlot = false;
-        showDeliveryPlot = false;
-    }
-
-    async function get_payment() {
-        const response = await fetch('/api/stats_payment_type');
-        const data = await response.json();
-        payment = data.map(item => ({
-            ...item,
-            payment_type :item.payment_type
-                .replace(/_/g, ' ')
-                .toLowerCase()
-                .replace(/^./, char => char.toUpperCase())
-        }))
-
-        // Supprimer les catégories qui représentent moins de 2 %
-        const total = payment.reduce((sum, item) => sum + item.count, 0);
-
-        payment = payment
-            .filter(item => item.count / total >= 0.002)
-            .map(item => ({
-                ...item,
-                percentage: ((item.count / total) * 100).toFixed(1)
-        }));
-
-        title_graph="Paiements";
-        showPaymentPlot = true;
-        showCategoryPlot = false;
-        showDeliveryPlot = false;
-    }
-
-    async function get_delivery(){
-        const response = await fetch('/api/stats_orders');
-        const data = await response.json();
-        const total = data.reduce(
-            (sum, item) => sum + item.count,
-            0
-        );
-        delivery= data.map(item =>({
-            ...item,
-            order_status:item.order_status
-                .replace(/_/g, ' ')
-                .toLowerCase()
-                .replace(/^./, char => char.toUpperCase())
-        }))
-        delivery = delivery
-                    .filter(item => item.count / total >= 0.002)
-                    .map(item => ({
-                        ...item,
-                        percentage: ((item.count / total) * 100).toFixed(1)
-                }));
-        title_graph="Livraisons";
-        showPaymentPlot = false;
-        showCategoryPlot = false;
-        showDeliveryPlot = true;
-    }
-
 
 </script>
 
@@ -140,101 +31,67 @@
     <p>Suivez l’évolution de vos commandes et de vos livraisons ainsi que des catégories les plus populaires et plus encore.</p>
 
     <br>
-    <div class="graph_title">
-        <h1 style:display={title_graph ? "block" :"none"}>{title_graph}</h1>
-    </div>
-    <div class="graph" class:active={showAnyPlot}>
-        {#if showCategoryPlot}
-            <Plot
-                y={{
-                    type: "band",
-                    label: "Category",
-                    domain: category.map(c => c.product_category_name)
-                }}
-                x={{
-                    type: "linear",
-                    label: "Nombre de commandes"
-                }}
-            >
-                <BarX
-                    data={category}
-                    y="product_category_name"
-                    x="count"
-                />
-            </Plot>
-        {/if}
-        {#if showDeliveryPlot}
-            <PieChart
-                data={delivery}
-                key="order_status"
-                value="count"
-                innerRadius={-40}
-                padding={{ top: 24, bottom: 85}}
-                label={(d) => `${d.order_status} (${d.percentage}%)`}
-                legend={{
-                    classes: {
-                        root: "payment-legend",
-                        swatch: "payment-swatch",
-                        label: "payment-label"
-                    }
-                }}
-                height={400}
-            />
-        {/if}
-        {#if showPaymentPlot}
-            <PieChart
-                data={payment}
-                key="payment_type"
-                value="count"
-                label={(d) => `${d.payment_type} (${d.percentage}%)`}
-                padding={{ top: 24, bottom: 65 }}
-                legend={{
-                    classes: {
-                        root: "payment-legend",
-                        swatch: "payment-swatch",
-                        label: "payment-label"
-                    }
-                }}
-                height={400}
-            />
-        {/if}
-    </div>
     <div class ="background-filters">
         <div class="filters">
-            <button onclick={get_category}>Catégories</button>
-            <button onclick={get_delivery}>Livraisons</button>
-            <button onclick={get_payment}>Paiement</button>
+            <Filters onConfirm={updateFilters} />
         </div>
     </div>
-    <br><br>
-    
-    <div class="graph">
-        {#if showCityPlot}
-            <Plot
-                y={{
-                    type: "band",
-                    label: "Ville",
-                    domain: city.map(c => c.customer__localisation__city)
-                }}
-                x={{
-                    type: "linear",
-                    label: "Nombre de commandes"
-                }}
-            >
-                <BarX
-                    data={city}
-                    y="customer__localisation__city"
-                    x="count"
+
+    <div class="dashboard_grid">
+        <div class="grid_content">
+            <h1>Catégories les plus populaires</h1>
+            <div class="graph">
+                <Category
+                    localisation_state={selected.localisation_state}
+                    localisation_city={selected.localisation_city}
+                    year={selected.year}
                 />
-            </Plot>
-        {/if}
-    </div>
-    <div class ="background-filters">
-        <div class="filters">
-            <button onclick={get_city}>Villes populaires</button>
+            </div>
+        </div>
+
+        <div class="grid_content">
+            <h1>Statut des livraisons</h1>
+            <div class="graph">
+                <Delivery
+                    localisation_state={selected.localisation_state}
+                    localisation_city={selected.localisation_city}
+                    year={selected.year}
+                />
+            </div>
+        </div>
+        
+        <div class="grid_content">
+            <h1>Type de paiements</h1>
+            <div class="graph">
+                <Payment
+                    localisation_state={selected.localisation_state}
+                    localisation_city={selected.localisation_city}
+                    year={selected.year}
+                />
+            </div>
+        </div>
+
+        <div class="grid_content">
+            <h1>Villes les plus populaires</h1>
+            <div class="graph">
+                <City
+                    localisation_state={selected.localisation_state}
+                    localisation_city={selected.localisation_city}
+                    year={selected.year}
+                />
+            </div>
+        </div>
+        <div class="grid_content">
+            <h1>Carte des commandes</h1>
+            <div class="map_container">
+                <Map
+                    localisation_state={selected.localisation_state}
+                    localisation_city={selected.localisation_city}
+                    year={selected.year}
+                />
+            </div>
         </div>
     </div>
-    <Map_example/>
 </div>
 
 <style>
@@ -285,43 +142,45 @@
         text-align:justify;
     }
     .filters {
-        background: rgba(0, 0, 0, 0.05);
-        display:flex;
-        justify-content:space-around;
-        border-radius: 5% / 90%;
+        display:grid;
+        gap:2%;
+        grid-template-columns: 1fr 1fr 1fr 0.5fr;
     }
     .filters button{
-        background: rgba(233, 124, 124, 0.0);
+        background: rgba(134, 36, 36, 0);
         border-color:transparent;
         font-weight: 400;
         font-family : Inter;
     }
+    
     @media (max-width:800px){
         :global(.payment-legend *) {
             display:grid;
             justify-content:space-around;
             grid-template-columns: 1fr 1fr;
+            
+        }
+        .filters {
+            display:grid;
+            grid-template-columns: 1fr 1fr;
         }
     }
 
     @media (min-width:1440px){
+
         .content{
             padding:1rem 4rem;
         }
-        .graph_title h1{
-            padding: 0px 25% 0px 25%;
+        .grid_content h1{
+            padding: 0px 10% 0px 10%;
         }
         .graph{
-            padding: 0px 25% 0px 25%;
-            display:flex;
+            padding: 0px 10% 0px 10%;
             align-items:center;
             justify-content:center;
         }
         .graph.active{
             height:50vh;
-        }
-        .graph img{
-            width:0%;
         }
         
         .filters{
@@ -332,6 +191,21 @@
         .background-filters{
             display:flex;
             justify-content:center;
+        }
+        .dashboard_grid{
+            padding-top:1rem;
+            display:grid;
+            grid-template-columns:1fr 1fr;
+        }
+        .grid_content{
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        .map_container{
+            padding: 0px 10% 2% 10%;
+        }
+        .dashboard_grid > .grid_content:last-child {
+            grid-column: 1 / -1;
         }
     }
 </style>

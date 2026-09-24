@@ -4,8 +4,6 @@
     <h1>Bienvenue</h1>
 
     <p class="content_intro">Bienvenue sur la plateforme pour suivre l’avancée de vos opérations. Des dashboards sont mis à votre disposition pour voir l’évolution de votre commerce. De ce fait vous pouvez suivre l’évolution de vos commandes et de vos livraisons ainsi que des catégories les plus populaires et plus encore.</p>
-
-    <div class="space"></div>
     
     <div class="dashboard-content">
         <img src="/placeholder/test.jpg" alt="Graph">
@@ -38,9 +36,6 @@
         text-align:justify;
     }
 
-    .space{
-        margin-bottom:4rem;
-    }
 
     a{
         text-decoration:none;

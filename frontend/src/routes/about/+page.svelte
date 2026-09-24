@@ -21,10 +21,9 @@
             Illustration graphique placeholder : rawpixel.com</p>
         </div>
         <br>
-    </div>
-    <p></p>
-    <div class="solution">
-        <p>Solution développée par Théo Schmitt.</p>
+        <div class="solution">
+            <p>Solution développée par Théo Schmitt.</p>
+        </div>
     </div>
 </div>
 
@@ -57,16 +56,24 @@
             grid-template-columns:1fr 1fr;
             display:grid;
             grid-template-areas:
-            "stack source";
+            "stack source"
+            "solution solution";
         }
         .stack{
+            display:flex;
+            flex-direction:column;
             grid-area:stack;
         }
         .source{
+            display:flex;
+            flex-direction:column;
             grid-area:source;
         }
-        .solution p{
+        .solution{
+            grid-area:solution;
             text-align:center;
+            display:flex;
+            justify-content:center;
         }
 
     }

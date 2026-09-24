@@ -68,36 +68,41 @@ def clean_geolocation():
 
     df_geolocation = gpd.sjoin(
         points,
-        towns[["NM_MUN", "geometry"]],
+        towns[["NM_MUN","NM_UF", "geometry"]],
         how="left",
         predicate="within"
     )
 
-    df_geolocation = df_geolocation.drop(columns=['geolocation_city', 'geometry', 'index_right'])
+
+    df_geolocation = df_geolocation.drop(columns=['geolocation_city','geolocation_state', 'geometry', 'index_right'])
+
 
     df_geolocation = df_geolocation.rename(columns={
-        "NM_MUN": "geolocation_city"
+        "NM_MUN": "geolocation_city",
+        "NM_UF" : "geolocation_state"
     })
 
+
     # Adding the remaining dozen towns left that are missing
-    missing_names={
-        "18243":"Bom Retiro da Esperança",
-        "28165":"Vila Nova de Campos",
-        "28155":"Santa Maria",
-        "29654":"Santo Antônio do Canaã",
-        "35179":"Santana do Paraíso",
-        "57319":"Pau-d'Arco",
-        "58441":"São José da Mata",
-        "68275":"Porto Trombetas",
-        "68447":"Vila dos Cabanos",
-        "78131":"Várzea Grande",
-        "83252":"Ilha dos Valadares",
-        "83810":"Areia Branca dos Assis",
-        "95130":"Santa Lúcia do Piaí",
-        "98780":"Santa Rosa"
+    missing_names = {
+        "18243": ("Bom Retiro da Esperança", "Paraíba"),
+        "28165": ("Vila Nova de Campos", "Minas Gerais"),
+        "28155": ("Santa Maria", "Rio Grande do Sul"),
+        "29654": ("Santo Antônio do Canaã", "Espírito Santo"),
+        "35179": ("Santana do Paraíso", "Minas Gerais"),
+        "57319": ("Pau-d'Arco", "Tocantins"),
+        "58441": ("São José da Mata", "Paraíba"),
+        "68275": ("Porto Trombetas", "Pará"),
+        "68447": ("Vila dos Cabanos", "Pará"),
+        "78131": ("Várzea Grande", "Mato Grosso"),
+        "83252": ("Ilha dos Valadares", "Paraná"),
+        "83810": ("Areia Branca dos Assis", "Paraná"),
+        "95130": ("Santa Lúcia do Piaí", "Rio Grande do Sul"),
+        "98780": ("Santa Rosa", "Rio Grande do Sul")
     }
 
-    for zip_code, city in missing_names.items():
+    for zip_code, (city,state) in missing_names.items():
+        df_geolocation.loc[df_geolocation['geolocation_zip_code_prefix'] == zip_code, 'geolocation_state']=state
         df_geolocation.loc[df_geolocation['geolocation_zip_code_prefix'] == zip_code, 'geolocation_city']=city
     df_geolocation.to_csv(CLEANED_DATA / "geolocation_dataset.csv", index=None)
 

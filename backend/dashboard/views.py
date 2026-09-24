@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models.functions import ExtractYear
 from .models import Localisation, Product, Customer, Order, OrderItem, OrderPayment, Seller
 from .serializers import LocalisationSerializer, ProductSerializer, CustomerSerializer, OrderSerializer,OrderItemSerializer,OrderPaymentSerializer, SellerSerializer
 
@@ -56,8 +57,23 @@ def get_product(request):
 
 @api_view(["GET"])
 def get_order_status_stats(request):
+
+    status=Order.objects.all()
+
+    city = request.query_params.get("city")
+    states = request.query_params.get("states")
+    year = request.query_params.get("year")
+
+    if city:
+        status = status.filter(customer__localisation__city=city)
+    if states:
+        status = status.filter(customer__localisation__state=states)
+    if year:
+        status = status.filter(order_purchase_timestamp__year=year)
+
+
     stats = (
-        Order.objects
+        status
         .values("order_status")
         .annotate(count=Count("id"))
         .order_by("-count")[:10]
@@ -67,9 +83,23 @@ def get_order_status_stats(request):
 
 @api_view(["GET"])
 def get_category_stats(request):
+
+    category=OrderItem.objects.all()
+
+    city = request.query_params.get("city")
+    states = request.query_params.get("states")
+    year = request.query_params.get("year")
+
+    if city:
+        category = category.filter(order__customer__localisation__city=city)
+    if states:
+        category = category.filter(order__customer__localisation__state=states)
+    if year:
+        category = category.filter(order__order_purchase_timestamp__year=year)
+
     stats = (
-        Product.objects
-        .values("product_category_name")
+        category
+        .values("product__product_category_name")
         .annotate(count=Count("id"))
         .order_by("-count")[:10]
     )
@@ -78,8 +108,21 @@ def get_category_stats(request):
 
 @api_view(["GET"])
 def get_payment_type_stats(request):
+    payment=OrderPayment.objects.all()
+
+    city = request.query_params.get("city")
+    states = request.query_params.get("states")
+    year = request.query_params.get("year")
+
+    if city:
+        payment = payment.filter(order__customer__localisation__city=city)
+    if states:
+        payment = payment.filter(order__customer__localisation__state=states)
+    if year:
+        payment = payment.filter(order__order_purchase_timestamp__year=year)
+
     stats = (
-        OrderPayment.objects
+        payment
         .values("payment_type")
         .annotate(count=Count("id"))
         .order_by("-count")[:10]
@@ -90,18 +133,48 @@ def get_payment_type_stats(request):
 
 @api_view(["GET"])
 def get_orders_city_stats(request):
+
+    city_order=Order.objects.all()
+
+    city = request.query_params.get("city")
+    states = request.query_params.get("states")
+    year = request.query_params.get("year")
+
+    if city:
+        city_order = city_order.filter(customer__localisation__city=city)
+    if states:
+        city_order = city_order.filter(customer__localisation__state=states)
+    if year:
+        city_order = city_order.filter(order_purchase_timestamp__year=year)
+
+
     stats = (
-        Order.objects
+        city_order
         .values("customer__localisation__city")
-        .annotate(latitude=Avg("customer__localisation__latitude"),longitude=Avg("customer__localisation__longitude"),count=Count("id"))
+        .annotate(count=Count("id"))
+        .order_by("-count")[:10]
     )
 
     return Response(stats)
 
 @api_view(["GET"])
 def get_orders_location(request):
+
+    city_location=Order.objects.all()
+
+    city = request.query_params.get("city")
+    states = request.query_params.get("states")
+    year = request.query_params.get("year")
+
+    if city:
+        city_location = city_location.filter(customer__localisation__city=city)
+    if states:
+        city_location = city_location.filter(customer__localisation__state=states)
+    if year:
+        city_location = city_location.filter(order_purchase_timestamp__year=year)
+
     stats = (
-        Order.objects
+        city_location
         .values(
             "customer__localisation__city",
             )
@@ -122,3 +195,41 @@ def get_orders_location(request):
         })
 
     return Response(data)
+
+
+@api_view(['GET'])
+def get_filters(request):
+    selected_state = request.query_params.get('state')
+
+    years = (
+        Order.objects
+            .annotate(year=ExtractYear('order_purchase_timestamp'))
+            .values_list('year', flat=True)
+            .distinct()
+            .order_by('-year')
+    )
+
+    states = (
+        Localisation.objects
+            .values_list('state', flat=True)
+            .distinct()
+            .order_by('state')
+    )
+
+    cities_query = Localisation.objects.all()
+
+    if selected_state:
+        cities_query = cities_query.filter(state=selected_state)
+
+    cities = (
+        cities_query
+            .values_list('city', flat=True)
+            .distinct()
+            .order_by('city')
+    )
+
+    return Response({
+        'years':list(years),
+        'states' :list(states),
+        'cities' :list(cities)
+    })

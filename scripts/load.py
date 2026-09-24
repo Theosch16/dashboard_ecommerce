@@ -23,8 +23,8 @@ with open(CLEANED_DATA / "geolocation_dataset.csv", "r", encoding="utf-8") as fi
             zip_code,
             latitude,
             longitude,
-            state,
-            city
+            city,
+            state
         )
         FROM STDIN
         WITH CSV HEADER
