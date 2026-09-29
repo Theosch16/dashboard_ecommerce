@@ -1,6 +1,3 @@
 .env
-
-data/**/*.csv
-data/**/*.zip
-
+data/
 *.pyc

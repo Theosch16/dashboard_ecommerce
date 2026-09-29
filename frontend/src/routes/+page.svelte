@@ -10,7 +10,7 @@
         <div class="dashboard_description">
             <h2>Dashboard</h2>
             <p>Consultez l’évolution de votre commerce.</p><br>
-            <button><a href="http://localhost:5173/dashboard">Consulter</a></button>
+            <button><a href="/dashboard">Consulter</a></button>
         </div>
         
     </div>

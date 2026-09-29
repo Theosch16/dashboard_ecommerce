@@ -7,7 +7,7 @@
 </script>
 <head>
 
-	<title>Dashboard</title>
+	<title>Dashboard e-commerce</title>
 </head>
 <div class="container">
 	<Headers />

@@ -11,9 +11,9 @@
 		<h1>Dashboard</h1>
 	{/if}
     <div class="navheader">
-        <p><a href="http://localhost:5173">Accueil</p>
-        <p><a href="http://localhost:5173/dashboard">Dashboard</p>
-        <p><a href="http://localhost:5173/about">A propos</a></p>
+        <p><a href="/">Accueil</p>
+        <p><a href="/dashboard">Dashboard</p>
+        <p><a href="/about">A propos</a></p>
     </div>
 </header>
 
