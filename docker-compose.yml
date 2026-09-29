@@ -42,7 +42,7 @@ services:
     nginx:
       image: nginx:stable-alpine3.24
       ports:
-        - "8080:80"
+        - "80:80"
         - "443:443"
       networks:
         - dashboard_network
